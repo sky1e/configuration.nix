@@ -8,7 +8,7 @@
     [ <nixpkgs/nixos/modules/installer/scan/not-detected.nix>
     ];
 
-  boot.initrd.availableKernelModules = [ "xhci_pci" "nvme" "usb_storage" "usbhid" "sd_mod" ];
+  boot.initrd.availableKernelModules = [ "xhci_pci" "nvme" "usbhid" ];
   boot.initrd.kernelModules = [ "dm-snapshot" ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
@@ -19,15 +19,15 @@
       options = [ "subvol=root" ];
     };
 
+  fileSystems."/boot" =
+    { device = "/dev/disk/by-uuid/B530-2719";
+      fsType = "vfat";
+    };
+
   fileSystems."/home" =
     { device = "/dev/disk/by-uuid/070d2533-ae3c-4e8b-a9eb-a27432c2a627";
       fsType = "btrfs";
       options = [ "subvol=home" ];
-    };
-
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/B530-2719";
-      fsType = "vfat";
     };
 
   swapDevices =
@@ -37,5 +37,5 @@
   nix.maxJobs = lib.mkDefault 4;
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
   # High-DPI console
-  i18n.consoleFont = lib.mkDefault "${pkgs.terminus_font}/share/consolefonts/ter-u28n.psf.gz";
+  console.font = lib.mkDefault "${pkgs.terminus_font}/share/consolefonts/ter-u28n.psf.gz";
 }
