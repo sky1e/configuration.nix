@@ -69,6 +69,7 @@
   hardware.cpu.intel.updateMicrocode = true;
   hardware.openrazer.enable = true;
   hardware.sane.enable = true;
+  hardware.u2f.enable = true;
 
   # Enable sound.
   sound.enable = true;
