@@ -19,6 +19,12 @@
       options = [ "subvol=root" ];
     };
 
+  fileSystems."/nix" =
+    { device = "/dev/disk/by-uuid/070d2533-ae3c-4e8b-a9eb-a27432c2a627";
+      fsType = "btrfs";
+      options = [ "subvol=nix" ];
+    };
+
   fileSystems."/boot" =
     { device = "/dev/disk/by-uuid/B530-2719";
       fsType = "vfat";
@@ -30,8 +36,19 @@
       options = [ "subvol=home" ];
     };
 
+  fileSystems."/home/skye/Downloads" =
+    { device = "tmpfs";
+      fsType = "tmpfs";
+    };
+
+  fileSystems."/mnt" =
+    { device = "/dev/disk/by-uuid/070d2533-ae3c-4e8b-a9eb-a27432c2a627";
+      fsType = "btrfs";
+      options = [ "subvol=root" ];
+    };
+
   swapDevices =
-    [ { device = "/dev/disk/by-uuid/62c3aeee-cede-4560-91f9-6f27f44a4549"; }
+    [ { device = "/dev/disk/by-uuid/32bd626e-4c5a-48bf-bb19-4faf911d0866"; }
     ];
 
   nix.maxJobs = lib.mkDefault 4;
