@@ -18,38 +18,69 @@ in
     ];
 
   # Use the systemd-boot EFI boot loader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader = {
+    systemd-boot.enable = true;
+    efi.canTouchEfiVariables = true;
+  };
   #boot.tmpOnTmpfs = true;
 
-  networking.hostName = "toymouse"; # Define your hostname.
+  networking.hostName = import ./hostname.nix; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  fileSystems."/home/skye/Downloads" = {
-    options = [ "uid=skye" "gid=users" "mode=700" ];
-  };
-  fileSystems."/home".options = [ "compress-force=zstd" ];
-  fileSystems."/".options = [ "compress-force=zstd" ];
-  fileSystems."/nix".options = [ "compress-force=zstd" ];
-
-  services.avahi = {
-    enable = true;
-    nssmdns = true;
-    publish = {
-      enable = true;
-      userServices = true;
+  
+  fileSystems = {
+    "/home/skye/Downloads" = {
+      device = "tmpfs";
+      fsType = "tmpfs";
+      options = [ "uid=skye" "gid=users" "mode=700" ];
+    };
+    "/luna" = {
+      device = "10.69.0.69:/media/tank";
+      fsType = "nfs4";
+      options = [
+        "x-systemd.automount" "noauto"
+      ];
+    };
+    "/torrents" = {
+      device = "//192.168.3.2/torrents";
+      fsType = "cifs";
+      options = [
+        "credentials=${./secrets/bonbon-secrets}"
+        "uid=skye"
+        "gid=users"
+        "x-systemd.automount" "noauto"
+      ];
     };
   };
-  services.pipewire.enable = true;
 
-  services.udev.packages = [
-    (with pkgs; writeTextFile {
+  services = {
+    avahi = {
+      enable = true;
+      nssmdns = true;
+      publish = {
+        enable = true;
+        addresses = true;
+        userServices = true;
+      };
+    };
+    flatpak.enable = true;
+    openssh.enable = true;
+    pipewire.enable = true;
+    syncthing = {
+      openDefaultPorts = true;
+      enable = true;
+      user = "skye";
+      dataDir = config.users.users.skye.home;
+    };
+    udev.packages = [
+      (with pkgs; writeTextFile {
         name = "uhk-udev-rules";
         text = builtins.readFile ./50-uhk60.rules;
         destination = "/etc/udev/rules.d/50-uhk60.rules";
-    })
-  ];
-  environment.systemPackages = [ pkgs.ntfs3g pkgs.cifs-utils ];
+      })
+    ];
+  };
+
+  environment.systemPackages = with pkgs; [ ntfs3g cifs-utils nfs-utils ];
   programs.adb.enable = true;
   programs.light.enable = true;
 
@@ -62,16 +93,12 @@ in
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-  virtualisation.virtualbox.host.enable = true;
+  # virtualisation.virtualbox.host.enable = true;
 
-  networking.firewall.allowedTCPPorts = [ 80 22000 ];
-  networking.firewall.allowedUDPPorts = [ 21027 ];
-  networking.firewall.enable = false;
-  services.syncthing = {
-    openDefaultPorts = true;
-    enable = true;
-    user = "skye";
-    dataDir = config.users.users.skye.home;
+  networking.firewall = {
+    allowedTCPPorts = [ 80 22000 ];
+    allowedUDPPorts = [ 21027 ];
+    enable = false;
   };
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
@@ -89,7 +116,6 @@ in
   #  fish
   # ];
 
-  services.flatpak.enable = true;
 
   programs.sway = {
     enable = true;
@@ -103,10 +129,6 @@ in
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  services.openssh = {
-    enable = true;
-    passwordAuthentication = false;
-  };
   services.nginx = {
     enable = true;
     virtualHosts."localhost" = {
@@ -146,28 +168,41 @@ in
   # Enable touchpad support.
   services.xserver.libinput.enable = true;
 
-  # Enable the KDE Desktop Environment.
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome3.enable = true;
+  services.xserver.displayManager.lightdm.enable = true;
+  xdg.portal.enable = true;
+  
+  services.xserver.screenSection = ''
+    Device         "Device0"
+    Monitor        "Monitor0"
+    DefaultDepth    24
+    Option         "Stereo" "0"
+    Option         "nvidiaXineramaInfoOrder" "DFP-4"
+    Option         "metamodes" "2560x1440_144 +0+0"
+    Option         "SLI" "Off"
+    Option         "MultiGPU" "Off"
+    Option         "BaseMosaic" "off"
+    SubSection     "Display"
+        Depth       24
+    EndSubSection
+    '';
+  
+  services.xserver.windowManager.i3.enable = true;
+  services.xserver.videoDrivers = [ "nvidia" ];
 
-  users.mutableUsers = false;
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  #users.users = let
-  #  dir = readDir ./users;
-  #  filtered = filterAttrs (name: value: (hasSuffix ".nix" name) && value == "regular") dir;
-  #  mapped = mapAttrs' (name: _: nameValuePair (removeSuffix ".nix" name) (import (./users + ("/" + name)) { inherit config pkgs; })) filtered;
-  #in mapped;
-  users.users = {
-    skye = import ./users/skye.nix { inherit config pkgs; };
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+    "nvidia-persistenced"
+    "nvidia-settings"
+    "nvidia-x11"
+  ];
+
+  users = {
+    mutableUsers = false;
+    users = {
+      artemis.uid = 1000;
+      skye = import ./users/skye.nix { inherit config pkgs; };
+    };
   };
-  #users.users.skye = {
-  #  isNormalUser = true;
-  #  extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
-  #  shell = pkgs.fish;
-  #  uid = 1000;
-  #  hashedPassword = import ./password-hash.nix;
-  #  packages = with config.users.users.skye; import (home + "/.config/nixpkgs/packages.nix") { pkgs = pkgs // {config = config // import (home + "/.config/nixpkgs/config.nix"); }; };
-  #};
+  # Define a user account. Don't forget to set a password with ‘passwd’.
   #nixpkgs.config.allowUnfree = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
 

@@ -3,8 +3,8 @@
   isNormalUser = true;
   extraGroups = [ "wheel" "networkmanager" ];
   shell = pkgs.fish;
-  uid = 1000;
-  hashedPassword = import ../password-hash.nix;
+  uid = 1001;
+  hashedPassword = import ../secrets/password-hash.nix;
   packages = let home = config.users.users.skye.home;
   in import (home + "/.config/nixpkgs/packages.nix" ) {
     pkgs = import <nixpkgs> {
