@@ -5,18 +5,21 @@
     nixpkgs = { url = "github:nixos/nixpkgs/nixos-unstable"; };
   };
 
-  outputs = inputs:
+  outputs = { self, nixpkgs, ... }:
+  let ignoreme = ({config, lib, ...}: with lib; { system.nixos.revision = mkForce null; system.nixos.versionSuffix = mkForce "pre-git"; });
+  in
   {
     nixosConfiguration = {
-      mysystem = inputs.nixpkgs.lib.nixosSystem {
+      twilight-sparkle = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
           ./configuration.nix
+          ignoreme
         ];
         specialArgs = {
-          inherit inputs;
+          inherit nixpkgs;
         };
-      }
+      };
     };
   };
 }

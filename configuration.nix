@@ -106,11 +106,11 @@ in
       dataDir = config.users.users.skye.home;
     };
     udev.packages = [
-      (with pkgs; writeTextFile {
+      pkgs.writeTextFile {
         name = "uhk-udev-rules";
         text = builtins.readFile ./50-uhk60.rules;
         destination = "/etc/udev/rules.d/50-uhk60.rules";
-      })
+      }
     ];
     yubikey-agent.enable = true;
   };
