@@ -1,0 +1,3 @@
+[submodule "system-common"]
+	path = system-common
+	url = git@github.com:mildlyfunctionalgays/system-common.git

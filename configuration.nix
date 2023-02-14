@@ -17,18 +17,25 @@ in
       ./hardware-configuration-fix.nix
     ];
 
+
+  #nixpkgs.config.allowBroken = true;
+
   # Use the systemd-boot EFI boot loader.
   boot.loader = {
     systemd-boot.enable = true;
     efi.canTouchEfiVariables = true;
   };
   #boot.tmpOnTmpfs = true;
+  boot.supportedFilesystems = [ "zfs" ];
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
   networking.hostName = import ./hostname.nix; # Define your hostname.
+  networking.hostId = "d50a7f2e";
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   
   fileSystems = {
-    "/home/skye/Downloads" = {
+    "Downloads" = {
+      mountPoint = "/home/skye/Downloads";
       device = "tmpfs";
       fsType = "tmpfs";
       options = [ "uid=skye" "gid=users" "mode=700" ];
@@ -40,18 +47,17 @@ in
         "x-systemd.automount" "noauto"
       ];
     };
-    "/torrents" = {
-      device = "//192.168.3.2/torrents";
-      fsType = "cifs";
-      options = [
-        "credentials=${./secrets/bonbon-secrets}"
-        "uid=skye"
-        "gid=users"
-        "x-systemd.automount" "noauto"
-      ];
-    };
   };
 
+  nix = {
+    settings.auto-optimise-store = true;
+    extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
+  };
+
+  systemd.services.nginx.serviceConfig.ProtectHome = lib.mkForce false;
+  systemd.services.nginx.serviceConfig.ProtectSystem = lib.mkForce false;
   services = {
     avahi = {
       enable = true;
@@ -63,8 +69,36 @@ in
       };
     };
     flatpak.enable = true;
+    nginx = {
+      enable = true;
+      virtualHosts."battlesnake.skye-c.at" = {
+        root = "/var/www";
+	listen = [
+	  {
+	    addr = "0.0.0.0";
+	    port = 8080;
+          }
+	];
+      };
+      virtualHosts."localhost" = {
+        locations."/".root = "/home/skye/nginx";
+        serverName = "localhost";
+        default = true;
+        root = "/home/skye/nginx";
+      };
+    };
+
+    #hardware.xow.enable = true;
     openssh.enable = true;
-    pipewire.enable = true;
+    pipewire = {
+      enable = true;
+      pulse.enable = true;
+      alsa = {
+        enable = true;
+	support32Bit = true;
+      };
+      jack.enable = true;
+    };
     syncthing = {
       openDefaultPorts = true;
       enable = true;
@@ -78,6 +112,7 @@ in
         destination = "/etc/udev/rules.d/50-uhk60.rules";
       })
     ];
+    yubikey-agent.enable = true;
   };
 
   environment.systemPackages = with pkgs; [ ntfs3g cifs-utils nfs-utils ];
@@ -95,10 +130,20 @@ in
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
   # virtualisation.virtualbox.host.enable = true;
 
-  networking.firewall = {
-    allowedTCPPorts = [ 80 22000 ];
-    allowedUDPPorts = [ 21027 ];
-    enable = false;
+  networking = {
+    firewall = {
+      allowedTCPPorts = [ 80 22000 ];
+      allowedUDPPorts = [ 21027 ];
+      enable = false;
+    };
+    hosts =
+      let
+        inherit (pkgs.lib) attrValues foldl mapAttrs' nameValuePair;
+        hostsFile = import ./system-common/hosts.nix {};
+        subnets = attrValues hostsFile;
+        hostsAttrSet = foldl (a: b: a // b) {} (map (a: a.hosts) subnets);
+        hosts = mapAttrs' (name: value: lib.nameValuePair value.ip4 [ name ]) hostsAttrSet;
+      in hosts;
   };
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
@@ -118,7 +163,8 @@ in
 
 
   programs.sway = {
-    enable = true;
+    #wrapperFeatures.gtk = true;
+    #enable = true;
   };
   programs.fish.enable = true;
   # Some programs need SUID wrappers, can be configured further or are
@@ -127,17 +173,6 @@ in
   programs.gnupg.agent = { enable = true; enableSSHSupport = true; };
 
   # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
-  services.nginx = {
-    enable = true;
-    virtualHosts."localhost" = {
-      locations."/".root = "/home/skye/nginx";
-      serverName = "localhost";
-      default = true;
-      root = "/home/skye/nginx";
-    };
-  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
@@ -155,10 +190,13 @@ in
   hardware.opengl.driSupport32Bit = true;
   hardware.opengl.enable = true;
   hardware.pulseaudio.support32Bit = true;
+  hardware.steam-hardware.enable = true;
+  hardware.xpadneo.enable = true;
+  hardware.nvidia.modesetting.enable = true;
 
   # Enable sound.
   sound.enable = true;
-  hardware.pulseaudio.enable = true;
+  hardware.pulseaudio.enable = false;
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
@@ -168,8 +206,13 @@ in
   # Enable touchpad support.
   services.xserver.libinput.enable = true;
 
-  services.xserver.displayManager.lightdm.enable = true;
-  xdg.portal.enable = true;
+  services.xserver.desktopManager.gnome.enable = true;
+  #services.xserver.desktopManager.plasma5.enable = true;
+  services.xserver.displayManager.gdm.enable = true;
+  xdg.portal = {
+    enable = true;
+    xdgOpenUsePortal = true;
+  };
   
   services.xserver.screenSection = ''
     Device         "Device0"
@@ -185,26 +228,38 @@ in
         Depth       24
     EndSubSection
     '';
+
+  virtualisation.docker.enable = true;
   
   services.xserver.windowManager.i3.enable = true;
   services.xserver.videoDrivers = [ "nvidia" ];
+
+  hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.beta;
 
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
     "nvidia-persistenced"
     "nvidia-settings"
     "nvidia-x11"
+    "steam-original"
   ];
+  nixpkgs.config.packageOverrides = pkgs: {
+    xsaneGimp = pkgs.xsane.override { gimpSupport = true; };
+  };
 
   users = {
     mutableUsers = false;
     users = {
-      artemis.uid = 1000;
+      artemis = {
+	isSystemUser = true;
+        uid = 1000;
+	group = "users";
+      };
       skye = import ./users/skye.nix { inherit config pkgs; };
     };
   };
   # Define a user account. Don't forget to set a password with ‘passwd’.
   #nixpkgs.config.allowUnfree = true;
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  #boot.kernelPackages = pkgs.linuxPackages_latest;
 
   # This value determines the NixOS release with which your system is to be
   # compatible, in order to avoid breaking some software such as database

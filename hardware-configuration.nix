@@ -18,19 +18,9 @@
       fsType = "ext4";
     };
 
-  fileSystems."/home/skye/Downloads" =
-    { device = "tmpfs";
-      fsType = "tmpfs";
-    };
-
   fileSystems."/boot" =
     { device = "/dev/disk/by-uuid/ABC7-A073";
       fsType = "vfat";
-    };
-
-  fileSystems."/home/skye/torrents" =
-    { device = "//192.168.3.2/torrents";
-      fsType = "cifs";
     };
 
   swapDevices =
