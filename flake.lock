@@ -4,13 +4,13 @@
       "locked": {
         "lastModified": 1676300157,
         "narHash": "sha256-1HjRzfp6LOLfcj/HJHdVKWAkX9QRAouoh6AjzJiIerU=",
-        "owner": "nixos",
+        "owner": "NixOS",
         "repo": "nixpkgs",
         "rev": "545c7a31e5dedea4a6d372712a18e00ce097d462",
         "type": "github"
       },
       "original": {
-        "owner": "nixos",
+        "owner": "NixOS",
         "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
@@ -18,7 +18,52 @@
     },
     "root": {
       "inputs": {
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "secrets": "secrets",
+        "skye-config": "skye-config",
+        "system-common": "system-common"
+      }
+    },
+    "secrets": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1610052999,
+        "narHash": "sha256-oexfpfgsstt243lzJ5xGWRuU6kW8apj/hDg6u+ROekc=",
+        "path": "/etc/nixos/secrets",
+        "type": "path"
+      },
+      "original": {
+        "path": "/etc/nixos/secrets",
+        "type": "path"
+      }
+    },
+    "skye-config": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1676510747,
+        "narHash": "sha256-ueheW4G/+1Ea2C9b0F7iHfo8ZBJpZRKKu7ItQVJvVRc=",
+        "path": "/home/skye/.config/nixpkgs",
+        "type": "path"
+      },
+      "original": {
+        "path": "/home/skye/.config/nixpkgs",
+        "type": "path"
+      }
+    },
+    "system-common": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1626631987,
+        "narHash": "sha256-QaKjNZ1d0ZAxwQ2T0/mpGV7KGr6lTJ2ojnlxEopXdNo=",
+        "ref": "refs/heads/main",
+        "rev": "d873acd3e73a52504a7f6d25f7bf790ad272cf83",
+        "revCount": 4,
+        "type": "git",
+        "url": "ssh://git@github.com/mildlyfunctionalgays/system-common"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@github.com/mildlyfunctionalgays/system-common"
       }
     }
   },

@@ -2,23 +2,31 @@
   description = "Twilight-Sparkle flake configuration";
 
   inputs = {
-    nixpkgs = { url = "github:nixos/nixpkgs/nixos-unstable"; };
+    nixpkgs = { url = "github:NixOS/nixpkgs/nixos-unstable"; };
+    skye-config = { url = "/home/skye/.config/nixpkgs/"; flake = false; };
+    secrets = {
+      url = "/etc/nixos/secrets/";
+      flake = false;
+    };
+    system-common = {
+      url = "git+ssh://git@github.com/mildlyfunctionalgays/system-common";
+      flake = false;
+    };
   };
 
-  outputs = { self, nixpkgs, ... }:
-  let ignoreme = ({config, lib, ...}: with lib; { system.nixos.revision = mkForce null; system.nixos.versionSuffix = mkForce "pre-git"; });
+  outputs = { self, nixpkgs, ... } @ inputs:
+  let
+    system = "x86_64-linux";
   in
   {
-    nixosConfiguration = {
+    nixosConfigurations = {
       twilight-sparkle = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
+        inherit system;
         modules = [
           ./configuration.nix
-          ignoreme
+          #ignoreme
         ];
-        specialArgs = {
-          inherit nixpkgs;
-        };
+        specialArgs = inputs;
       };
     };
   };

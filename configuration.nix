@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, pkgs, system-common, ... } @ inputs:
 
 let
   inherit (builtins) readDir;
@@ -29,7 +29,7 @@ in
   boot.supportedFilesystems = [ "zfs" ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
-  networking.hostName = import ./hostname.nix; # Define your hostname.
+  networking.hostName = "twilight-sparkle"; # Define your hostname.
   networking.hostId = "d50a7f2e";
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   
@@ -105,13 +105,6 @@ in
       user = "skye";
       dataDir = config.users.users.skye.home;
     };
-    udev.packages = [
-      pkgs.writeTextFile {
-        name = "uhk-udev-rules";
-        text = builtins.readFile ./50-uhk60.rules;
-        destination = "/etc/udev/rules.d/50-uhk60.rules";
-      }
-    ];
     yubikey-agent.enable = true;
   };
 
@@ -139,7 +132,7 @@ in
     hosts =
       let
         inherit (pkgs.lib) attrValues foldl mapAttrs' nameValuePair;
-        hostsFile = import ./system-common/hosts.nix {};
+        hostsFile = import (system-common + /hosts.nix) {};
         subnets = attrValues hostsFile;
         hostsAttrSet = foldl (a: b: a // b) {} (map (a: a.hosts) subnets);
         hosts = mapAttrs' (name: value: lib.nameValuePair value.ip4 [ name ]) hostsAttrSet;
@@ -254,7 +247,7 @@ in
         uid = 1000;
 	group = "users";
       };
-      skye = import ./users/skye.nix { inherit config pkgs; };
+      skye = import ./users/skye.nix inputs;
     };
   };
   # Define a user account. Don't forget to set a password with ‘passwd’.
