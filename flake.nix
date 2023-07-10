@@ -5,7 +5,7 @@
     nixpkgs = { url = "github:NixOS/nixpkgs/nixos-unstable"; };
     skye-config = { url = "/home/skye/.config/nixpkgs/"; flake = false; };
     secrets = {
-      url = "/etc/nixos/secrets/";
+      url = "git+file:///home/skye/secrets/";
       flake = false;
     };
     system-common = {

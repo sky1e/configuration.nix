@@ -2,11 +2,11 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1676300157,
-        "narHash": "sha256-1HjRzfp6LOLfcj/HJHdVKWAkX9QRAouoh6AjzJiIerU=",
+        "lastModified": 1688322751,
+        "narHash": "sha256-eW62dC5f33oKZL7VWlomttbUnOTHrAbte9yNUNW8rbk=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "545c7a31e5dedea4a6d372712a18e00ce097d462",
+        "rev": "0fbe93c5a7cac99f90b60bdf5f149383daaa615f",
         "type": "github"
       },
       "original": {
@@ -27,21 +27,24 @@
     "secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1610052999,
+        "lastModified": 1676587678,
         "narHash": "sha256-oexfpfgsstt243lzJ5xGWRuU6kW8apj/hDg6u+ROekc=",
-        "path": "/etc/nixos/secrets",
-        "type": "path"
+        "ref": "refs/heads/main",
+        "rev": "abc98db3d03dda6749ea78acae148725d4f02bc7",
+        "revCount": 1,
+        "type": "git",
+        "url": "file:///home/skye/secrets/"
       },
       "original": {
-        "path": "/etc/nixos/secrets",
-        "type": "path"
+        "type": "git",
+        "url": "file:///home/skye/secrets/"
       }
     },
     "skye-config": {
       "flake": false,
       "locked": {
-        "lastModified": 1676510747,
-        "narHash": "sha256-ueheW4G/+1Ea2C9b0F7iHfo8ZBJpZRKKu7ItQVJvVRc=",
+        "lastModified": 1684600305,
+        "narHash": "sha256-XITgFdcuRtIVSCabnDDVmEPIu6nKprRoAU0P4p9k2L4=",
         "path": "/home/skye/.config/nixpkgs",
         "type": "path"
       },

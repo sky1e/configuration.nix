@@ -91,14 +91,15 @@ in
     #hardware.xow.enable = true;
     openssh.enable = true;
     pipewire = {
-      enable = true;
-      pulse.enable = true;
+      #enable = true;
+      #pulse.enable = true;
       alsa = {
-        enable = true;
-	support32Bit = true;
+        #enable = true;
+	#support32Bit = true;
       };
-      jack.enable = true;
+      #jack.enable = true;
     };
+    
     syncthing = {
       openDefaultPorts = true;
       enable = true;
@@ -189,7 +190,7 @@ in
 
   # Enable sound.
   sound.enable = true;
-  hardware.pulseaudio.enable = false;
+  hardware.pulseaudio.enable = true;
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
@@ -230,11 +231,13 @@ in
   hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.beta;
 
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+    "discord"
     "nvidia-persistenced"
     "nvidia-settings"
     "nvidia-x11"
     "steam-original"
   ];
+  nixpkgs.config.allowUnfree = true;
   nixpkgs.config.packageOverrides = pkgs: {
     xsaneGimp = pkgs.xsane.override { gimpSupport = true; };
   };
