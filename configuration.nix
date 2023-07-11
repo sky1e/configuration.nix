@@ -69,6 +69,7 @@ in
       };
     };
     flatpak.enable = true;
+    tshock.enable = true;
     nginx = {
       enable = true;
       virtualHosts."battlesnake.skye-c.at" = {

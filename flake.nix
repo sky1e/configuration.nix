@@ -12,9 +12,13 @@
       url = "git+ssh://git@github.com/mildlyfunctionalgays/system-common";
       flake = false;
     };
+    tshock = {
+      url = "github:sky1e/tshock-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, ... } @ inputs:
+  outputs = { self, nixpkgs, tshock, ... } @ inputs:
   let
     system = "x86_64-linux";
   in
@@ -24,6 +28,7 @@
         inherit system;
         modules = [
           ./configuration.nix
+          tshock.nixosModules.tshock
           #ignoreme
         ];
         specialArgs = inputs;
