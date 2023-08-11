@@ -2,11 +2,10 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, system-common, ... } @ inputs:
+{ config, lib, pkgs, system-common, host, hosts, ... } @ inputs:
 
 let
   inherit (builtins) readDir;
-  inherit (pkgs) lib;
   inherit (lib.attrsets) filterAttrs mapAttrs' nameValuePair;
   inherit (lib.strings) hasSuffix removeSuffix;
 in
@@ -26,12 +25,16 @@ in
     efi.canTouchEfiVariables = true;
   };
   #boot.tmpOnTmpfs = true;
-  boot.supportedFilesystems = [ "zfs" ];
+  boot.supportedFilesystems = lib.mkIf (host == hosts.twilight-sparkle) [ "zfs" ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
-  networking.hostName = "twilight-sparkle"; # Define your hostname.
-  networking.hostId = "d50a7f2e";
+  networking.hostId = lib.mkIf (host == hosts.twilight-sparkle) "d50a7f2e";
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+
+  security = lib.mkIf (host == hosts.izzy-moonbow) {
+    pam.services.login.fprintAuth = true;
+    polkit.enable = true;
+  };
   
   fileSystems = {
     "Downloads" = {
@@ -56,8 +59,10 @@ in
     '';
   };
 
-  systemd.services.nginx.serviceConfig.ProtectHome = lib.mkForce false;
-  systemd.services.nginx.serviceConfig.ProtectSystem = lib.mkForce false;
+  #systemd.services.nginx.serviceConfig = lib.mkIf (host == hosts.twilight-sparkle) {
+  #  ProtectHome = lib.mkForce false;
+  #  ProtectSystem = lib.mkForce false;
+  #};
   services = {
     avahi = {
       enable = true;
@@ -69,7 +74,8 @@ in
       };
     };
     flatpak.enable = true;
-    nginx = {
+    fprintd.enable = true;
+    nginx = lib.mkIf (host == hosts.twilight-sparkle) {
       enable = true;
       virtualHosts."battlesnake.skye-c.at" = {
         root = "/var/www";
@@ -90,15 +96,7 @@ in
 
     #hardware.xow.enable = true;
     openssh.enable = true;
-    pipewire = {
-      #enable = true;
-      #pulse.enable = true;
-      alsa = {
-        #enable = true;
-	#support32Bit = true;
-      };
-      #jack.enable = true;
-    };
+    pipewire.enable = true;
     
     syncthing = {
       openDefaultPorts = true;
@@ -109,7 +107,7 @@ in
     yubikey-agent.enable = true;
   };
 
-  environment.systemPackages = with pkgs; [ ntfs3g cifs-utils nfs-utils ];
+  environment.systemPackages = with pkgs; [ ntfs3g cifs-utils nfs-utils ] ++ lib.optional (host == hosts.izzy-moonbow) polkit_gnome;
   programs.adb.enable = true;
   programs.light.enable = true;
 
@@ -192,42 +190,39 @@ in
   sound.enable = true;
   hardware.pulseaudio.enable = true;
 
-  # Enable the X11 windowing system.
-  services.xserver.enable = true;
-  services.xserver.layout = "us";
-  # services.xserver.xkbOptions = "eurosign:e";
-
-  # Enable touchpad support.
-  services.xserver.libinput.enable = true;
-
-  services.xserver.desktopManager.gnome.enable = true;
-  #services.xserver.desktopManager.plasma5.enable = true;
-  services.xserver.displayManager.gdm.enable = true;
   xdg.portal = {
     enable = true;
     xdgOpenUsePortal = true;
   };
   
-  services.xserver.screenSection = ''
-    Device         "Device0"
-    Monitor        "Monitor0"
-    DefaultDepth    24
-    Option         "Stereo" "0"
-    Option         "nvidiaXineramaInfoOrder" "DFP-4"
-    Option         "metamodes" "2560x1440_144 +0+0"
-    Option         "SLI" "Off"
-    Option         "MultiGPU" "Off"
-    Option         "BaseMosaic" "off"
-    SubSection     "Display"
-        Depth       24
-    EndSubSection
-    '';
+  services.xserver = {
+    #screenSection = if (host == hosts.twilight-sparkle) then ''
+    #  Device         "Device0"
+    #  Monitor        "Monitor0"
+    #  DefaultDepth    24
+    #  Option         "Stereo" "0"
+    #  Option         "nvidiaXineramaInfoOrder" "DFP-4"
+    #  Option         "metamodes" "2560x1440_144 +0+0"
+    #  Option         "SLI" "Off"
+    #  Option         "MultiGPU" "Off"
+    #  Option         "BaseMosaic" "off"
+    #  SubSection     "Display"
+    #      Depth       24
+    #  EndSubSection
+    #'' else "";
+    # Enable the X11 windowing system.
+    enable = true;
+    layout = "us";
+    # Enable touchpad support.
+    libinput.enable = true;
+    desktopManager.gnome.enable = true;
+    displayManager.gdm.enable = true;
+    windowManager.i3.enable = true;
+    videoDrivers = lib.optional (host == hosts.twilight-sparkle) "nvidia";
+  };
 
   virtualisation.docker.enable = true;
   
-  services.xserver.windowManager.i3.enable = true;
-  services.xserver.videoDrivers = [ "nvidia" ];
-
   hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.beta;
 
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
@@ -245,7 +240,7 @@ in
   users = {
     mutableUsers = false;
     users = {
-      artemis = {
+      artemis = lib.mkIf (host == hosts.twilight-sparkle) {
 	isSystemUser = true;
         uid = 1000;
 	group = "users";
