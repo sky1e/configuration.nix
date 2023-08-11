@@ -22,14 +22,21 @@
       system = "x86_64-linux";
       inherit (nixpkgs) lib;
       hosts = {
-        izzy-moonbow = { networking.hostName = "Izzy-Moonbow"; };
-        twilight-sparkle = { networking.hostName = "twilight-sparkle"; };
+        izzy-moonbow = {
+          networking.hostName = "Izzy-Moonbow";
+          imports =
+            [ ./configuration.nix ./Izzy-Moonbow-hardware-configuration.nix ];
+        };
+        twilight-sparkle = {
+          networking.hostName = "twilight-sparkle";
+          imports = [ ./configuration.nix ./hardware-configuration.nix ./hardware-configuration-fix.nix ];
+        };
       };
     in {
       nixosConfigurations = lib.mapAttrs (key: value:
         nixpkgs.lib.nixosSystem {
           inherit system;
-          modules = [ ./configuration.nix ({ ... }: value) ];
+          modules = [ ({ ... }: value) ];
           specialArgs = inputs // {
             inherit hosts;
             host = value;

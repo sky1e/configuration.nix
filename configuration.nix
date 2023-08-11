@@ -10,12 +10,6 @@ let
   inherit (lib.strings) hasSuffix removeSuffix;
 in
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      ./hardware-configuration-fix.nix
-    ];
-
 
   #nixpkgs.config.allowBroken = true;
 
@@ -37,7 +31,7 @@ in
   };
   
   fileSystems = {
-    "Downloads" = {
+    "/home/skye/Downloads" = {
       mountPoint = "/home/skye/Downloads";
       device = "tmpfs";
       fsType = "tmpfs";
