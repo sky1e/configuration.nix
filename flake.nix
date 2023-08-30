@@ -63,6 +63,9 @@
             ];
             boot.supportedFilesystems = [ "zfs" ];
             hardware.nvidia.open = false;
+            fileSystems."/home/skye/Steam Library" = {
+              options = [ "compress=zstd" ];
+            };
 
             services.xserver.videoDrivers = [ "nvidia" ];
             services.nginx = {

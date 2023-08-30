@@ -24,10 +24,9 @@ in
   # Use the systemd-boot EFI boot loader.
   boot.loader = {
     systemd-boot.enable = true;
+    systemd-boot.memtest86.enable = true;
     efi.canTouchEfiVariables = true;
   };
-  #boot.tmpOnTmpfs = true;
-  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
   fileSystems = {
     "/home/skye/Downloads" = {
@@ -50,8 +49,16 @@ in
     };
   };
 
+  services.udev.packages = [
+    pkgs.platformio-core.udev
+    pkgs.openocd
+  ];
+
   nix = {
-    settings.auto-optimise-store = true;
+    settings = {
+      auto-optimise-store = true;
+      trusted-users = [ "@wheel" ];
+    };
     extraOptions = ''
       experimental-features = nix-command flakes
     '';
@@ -86,12 +93,26 @@ in
   };
 
   environment.systemPackages = with pkgs; [
+    gparted
     ntfs3g
     cifs-utils
     nfs-utils
   ];
-  programs.adb.enable = true;
-  programs.light.enable = true;
+
+  programs = {
+    adb.enable = true;
+    light.enable = true;
+    nix-ld.enable = true;
+    appimage = {
+      binfmt = true;
+      enable = true;
+      package = pkgs.appimage-run.override { extraPkgs = pkgs: [ pkgs.libepoxy ]; };
+    };
+    fish.enable = true;
+    ns-usbloader.enable = true;
+    gamescope.enable = true;
+    steam.gamescopeSession.enable = true;
+  };
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
@@ -144,11 +165,6 @@ in
   #  fish
   # ];
 
-  programs.sway = {
-    #wrapperFeatures.gtk = true;
-    #enable = true;
-  };
-  programs.fish.enable = true;
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
@@ -168,16 +184,14 @@ in
   # Enable CUPS to print documents.
   services.printing.enable = true;
 
-  hardware.cpu.intel.updateMicrocode = true;
-  hardware.openrazer.enable = true;
   hardware.sane.enable = true;
-  hardware.graphics.extraPackages = [ pkgs.vaapiIntel ];
   hardware.graphics.enable32Bit = true;
-  hardware.graphics.enable = true;
   hardware.steam-hardware.enable = true;
   hardware.xpadneo.enable = true;
-  hardware.nvidia.modesetting.enable = true;
 
+  services.desktopManager.plasma6.enable = true;
+  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm.wayland.enable = false;
   xdg.portal = {
     enable = true;
     xdgOpenUsePortal = true;
@@ -201,8 +215,6 @@ in
     # Enable the X11 windowing system.
     enable = true;
     xkb.layout = "us";
-    desktopManager.gnome.enable = true;
-    displayManager.gdm.enable = true;
     windowManager.i3.enable = true;
   };
 
@@ -228,6 +240,9 @@ in
     mutableUsers = false;
     users = {
       skye = import ./users/skye.nix inputs;
+    };
+    groups.plugdev = {
+      members = [ "skye" ];
     };
   };
   # Define a user account. Don't forget to set a password with ‘passwd’.

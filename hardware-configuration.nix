@@ -10,34 +10,42 @@
 }:
 
 {
-  imports = [
-    (modulesPath + "/installer/scan/not-detected.nix")
-  ];
+  imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
   boot.initrd.availableKernelModules = [
-    "xhci_pci"
     "nvme"
+    "xhci_pci"
+    "ahci"
     "usbhid"
+    "usb_storage"
+    "sd_mod"
   ];
-  boot.initrd.kernelModules = [ "dm-snapshot" ];
-  boot.kernelModules = [ "kvm-intel" ];
+  boot.initrd.kernelModules = [ ];
+  boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/070d2533-ae3c-4e8b-a9eb-a27432c2a627";
-    fsType = "btrfs";
-    options = [ "subvol=root" ];
+    device = "/dev/disk/by-uuid/9b235014-2813-40ec-ac6a-c9ad9f4aeaf6";
+    fsType = "ext4";
   };
 
-  fileSystems."/nix" = {
-    device = "/dev/disk/by-uuid/070d2533-ae3c-4e8b-a9eb-a27432c2a627";
+  fileSystems."/home/skye/Steam Library" = {
+    device = "/dev/disk/by-uuid/0449f540-37c8-4470-8c68-f5853c2b98a2";
     fsType = "btrfs";
-    options = [ "subvol=nix" ];
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/B530-2719";
+    device = "/dev/disk/by-uuid/6AE0-2D17";
     fsType = "vfat";
+    options = [
+      "fmask=0022"
+      "dmask=0022"
+    ];
+  };
+
+  fileSystems."/luna" = {
+    device = "10.69.0.69:/media/tank";
+    fsType = "nfs4";
   };
 
   fileSystems."/mnt" = {
@@ -57,9 +65,21 @@
     fsType = "tmpfs";
   };
 
-  swapDevices = [
-    { device = "/dev/disk/by-uuid/32bd626e-4c5a-48bf-bb19-4faf911d0866"; }
-  ];
+  swapDevices = [ { device = "/dev/disk/by-uuid/88268ff4-1346-461f-9793-aa704e3af86a"; } ];
 
-  powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
+  # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
+  # (the default) this is the recommended approach. When using systemd-networkd it's
+  # still possible to use this option, but it's recommended to use it in conjunction
+  # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
+  networking.useDHCP = lib.mkDefault true;
+  # networking.interfaces.br-beab56ee3449.useDHCP = lib.mkDefault true;
+  # networking.interfaces.br-e49d2514731f.useDHCP = lib.mkDefault true;
+  # networking.interfaces.docker0.useDHCP = lib.mkDefault true;
+  # networking.interfaces.enp4s0.useDHCP = lib.mkDefault true;
+  # networking.interfaces.enp6s0f0np0.useDHCP = lib.mkDefault true;
+  # networking.interfaces.enp6s0f1np1.useDHCP = lib.mkDefault true;
+  # networking.interfaces.enp9s0f3u4u1c2.useDHCP = lib.mkDefault true;
+
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }
