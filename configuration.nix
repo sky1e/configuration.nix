@@ -40,14 +40,14 @@ in
         "mode=700"
       ];
     };
-    "/luna" = {
-      device = "10.69.0.69:/media/tank";
-      fsType = "nfs4";
-      options = [
-        "x-systemd.automount"
-        "noauto"
-      ];
-    };
+    #"/luna" = {
+    #  device = "10.69.0.69:/media/tank";
+    #  fsType = "nfs4";
+    #  options = [
+    #    "x-systemd.automount"
+    #    "noauto"
+    #  ];
+    #};
   };
 
   nix = {
@@ -105,6 +105,7 @@ in
   # virtualisation.virtualbox.host.enable = true;
 
   networking = {
+    networkmanager.enable = true;
     firewall = {
       allowedTCPPorts = [
         80
@@ -169,7 +170,6 @@ in
   services.printing.enable = true;
 
   hardware.cpu.intel.updateMicrocode = true;
-  hardware.openrazer.enable = true;
   hardware.sane.enable = true;
   hardware.graphics.extraPackages = [ pkgs.vaapiIntel ];
   hardware.graphics.enable32Bit = true;
@@ -177,6 +177,8 @@ in
   hardware.steam-hardware.enable = true;
   hardware.xpadneo.enable = true;
   hardware.nvidia.modesetting.enable = true;
+
+  services.fwupd.enable = true;
 
   xdg.portal = {
     enable = true;

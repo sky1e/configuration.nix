@@ -21,12 +21,12 @@
   packages =
     let
       home = config.users.users.skye.home;
+      inherit (skye-config) lib;
     in
-    import (skye-config + "/packages.nix") {
+    lib.packages {
       pkgs = import nixpkgs {
-        system = pkgs.system;
-        config = import (skye-config + "/config.nix");
-        overlays = import (skye-config + "/overlays.nix");
+        inherit (pkgs) system;
+        inherit (lib) config overlays;
       };
     };
 }

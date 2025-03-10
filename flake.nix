@@ -8,7 +8,8 @@
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
     skye-config = {
       url = "/home/skye/.config/nixpkgs/";
-      flake = false;
+      inputs.nixpkgs.follows = "nixpkgs";
+      #flake = false;
     };
     secrets = {
       url = "git+file:///home/skye/secrets/";
@@ -18,16 +19,18 @@
       url = "git+ssh://forgejo@git.mildlyfunctional.gay/mildlyfunctionalgays/system-common";
     };
     lix-module = {
-      url = "git+https://git.lix.systems/lix-project/nixos-module";
+      url = "git+https://git.lix.systems/lix-project/nixos-module.git";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
 
   outputs =
     {
       self,
-      nixpkgs,
       lix-module,
+      nixos-hardware,
+      nixpkgs,
       nixpkgs-master,
       system-common,
       ...
@@ -43,6 +46,8 @@
             imports = [
               ./configuration.nix
               ./Izzy-Moonbow-hardware-configuration.nix
+              ./hardware-configuration-fix.nix
+              nixos-hardware.nixosModules.framework-11th-gen-intel
             ];
 
             security.polkit.enable = true;
@@ -59,7 +64,6 @@
             imports = [
               ./configuration.nix
               ./hardware-configuration.nix
-              ./hardware-configuration-fix.nix
             ];
             boot.supportedFilesystems = [ "zfs" ];
             hardware.nvidia.open = false;
@@ -101,7 +105,6 @@
           inherit system;
           modules = [
             lix-module.nixosModules.default
-            ./configuration.nix
             value
             (
               { config, pkgs, ... }:
