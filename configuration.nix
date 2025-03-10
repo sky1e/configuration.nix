@@ -2,7 +2,15 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, lib, pkgs, system-common, host, hosts, ... } @ inputs:
+{
+  config,
+  lib,
+  pkgs,
+  system-common,
+  host,
+  hosts,
+  ...
+}@inputs:
 
 let
   inherit (builtins) readDir;
@@ -29,19 +37,24 @@ in
     pam.services.login.fprintAuth = true;
     polkit.enable = true;
   };
-  
+
   fileSystems = {
     "/home/skye/Downloads" = {
       mountPoint = "/home/skye/Downloads";
       device = "tmpfs";
       fsType = "tmpfs";
-      options = [ "uid=skye" "gid=users" "mode=700" ];
+      options = [
+        "uid=skye"
+        "gid=users"
+        "mode=700"
+      ];
     };
     "/luna" = {
       device = "10.69.0.69:/media/tank";
       fsType = "nfs4";
       options = [
-        "x-systemd.automount" "noauto"
+        "x-systemd.automount"
+        "noauto"
       ];
     };
   };
@@ -73,12 +86,12 @@ in
       enable = true;
       virtualHosts."battlesnake.skye-c.at" = {
         root = "/var/www";
-	listen = [
-	  {
-	    addr = "0.0.0.0";
-	    port = 8080;
+        listen = [
+          {
+            addr = "0.0.0.0";
+            port = 8080;
           }
-	];
+        ];
       };
       virtualHosts."localhost" = {
         locations."/".root = "/home/skye/nginx";
@@ -91,7 +104,7 @@ in
     #hardware.xow.enable = true;
     openssh.enable = true;
     pipewire.enable = true;
-    
+
     syncthing = {
       openDefaultPorts = true;
       enable = true;
@@ -101,7 +114,14 @@ in
     yubikey-agent.enable = true;
   };
 
-  environment.systemPackages = with pkgs; [ ntfs3g cifs-utils nfs-utils ] ++ lib.optional (host == hosts.izzy-moonbow) polkit_gnome;
+  environment.systemPackages =
+    with pkgs;
+    [
+      ntfs3g
+      cifs-utils
+      nfs-utils
+    ]
+    ++ lib.optional (host == hosts.izzy-moonbow) polkit_gnome;
   programs.adb.enable = true;
   programs.light.enable = true;
 
@@ -118,18 +138,27 @@ in
 
   networking = {
     firewall = {
-      allowedTCPPorts = [ 80 22000 ];
+      allowedTCPPorts = [
+        80
+        22000
+      ];
       allowedUDPPorts = [ 21027 ];
       enable = false;
     };
     hosts =
       let
-        inherit (pkgs.lib) attrValues foldl mapAttrs' nameValuePair;
-        hostsFile = import (system-common + /hosts.nix) {};
+        inherit (pkgs.lib)
+          attrValues
+          foldl
+          mapAttrs'
+          nameValuePair
+          ;
+        hostsFile = import (system-common + /hosts.nix) { };
         subnets = attrValues hostsFile;
-        hostsAttrSet = foldl (a: b: a // b) {} (map (a: a.hosts) subnets);
+        hostsAttrSet = foldl (a: b: a // b) { } (map (a: a.hosts) subnets);
         hosts = mapAttrs' (name: value: lib.nameValuePair value.ip4 [ name ]) hostsAttrSet;
-      in hosts;
+      in
+      hosts;
   };
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
@@ -147,7 +176,6 @@ in
   #  fish
   # ];
 
-
   programs.sway = {
     #wrapperFeatures.gtk = true;
     #enable = true;
@@ -156,7 +184,10 @@ in
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
-  programs.gnupg.agent = { enable = true; enableSSHSupport = true; };
+  programs.gnupg.agent = {
+    enable = true;
+    enableSSHSupport = true;
+  };
 
   # List services that you want to enable:
 
@@ -188,7 +219,7 @@ in
     enable = true;
     xdgOpenUsePortal = true;
   };
-  
+
   services.xserver = {
     #screenSection = if (host == hosts.twilight-sparkle) then ''
     #  Device         "Device0"
@@ -216,16 +247,18 @@ in
   };
 
   virtualisation.docker.enable = true;
-  
+
   hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.beta;
 
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-    "discord"
-    "nvidia-persistenced"
-    "nvidia-settings"
-    "nvidia-x11"
-    "steam-original"
-  ];
+  nixpkgs.config.allowUnfreePredicate =
+    pkg:
+    builtins.elem (lib.getName pkg) [
+      "discord"
+      "nvidia-persistenced"
+      "nvidia-settings"
+      "nvidia-x11"
+      "steam-original"
+    ];
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.packageOverrides = pkgs: {
     xsaneGimp = pkgs.xsane.override { gimpSupport = true; };
@@ -235,9 +268,9 @@ in
     mutableUsers = false;
     users = {
       artemis = lib.mkIf (host == hosts.twilight-sparkle) {
-	isSystemUser = true;
+        isSystemUser = true;
         uid = 1000;
-	group = "users";
+        group = "users";
       };
       skye = import ./users/skye.nix inputs;
     };
@@ -252,4 +285,3 @@ in
   # should.
   system.stateVersion = "19.09"; # Did you read the comment?
 }
-

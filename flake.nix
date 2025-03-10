@@ -2,7 +2,9 @@
   description = "Twilight-Sparkle flake configuration";
 
   inputs = {
-    nixpkgs = { url = "github:NixOS/nixpkgs/nixos-unstable"; };
+    nixpkgs = {
+      url = "github:NixOS/nixpkgs/nixos-unstable";
+    };
     skye-config = {
       url = "/home/skye/.config/nixpkgs/";
       flake = false;
@@ -17,23 +19,32 @@
     };
   };
 
-  outputs = { self, nixpkgs, ... }@inputs:
+  outputs =
+    { self, nixpkgs, ... }@inputs:
     let
       system = "x86_64-linux";
       inherit (nixpkgs) lib;
       hosts = {
         izzy-moonbow = {
           networking.hostName = "Izzy-Moonbow";
-          imports =
-            [ ./configuration.nix ./Izzy-Moonbow-hardware-configuration.nix ];
+          imports = [
+            ./configuration.nix
+            ./Izzy-Moonbow-hardware-configuration.nix
+          ];
         };
         twilight-sparkle = {
           networking.hostName = "twilight-sparkle";
-          imports = [ ./configuration.nix ./hardware-configuration.nix ./hardware-configuration-fix.nix ];
+          imports = [
+            ./configuration.nix
+            ./hardware-configuration.nix
+            ./hardware-configuration-fix.nix
+          ];
         };
       };
-    in {
-      nixosConfigurations = lib.mapAttrs (key: value:
+    in
+    {
+      nixosConfigurations = lib.mapAttrs (
+        key: value:
         nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [ ({ ... }: value) ];
@@ -41,7 +52,8 @@
             inherit hosts;
             host = value;
           };
-        }) hosts;
-      formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt;
+        }
+      ) hosts;
+      formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt-rfc-style;
     };
 }
