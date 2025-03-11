@@ -27,15 +27,7 @@ in
     efi.canTouchEfiVariables = true;
   };
   #boot.tmpOnTmpfs = true;
-  boot.supportedFilesystems = lib.mkIf (host == hosts.twilight-sparkle) [ "zfs" ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
-
-  networking.hostId = lib.mkIf (host == hosts.twilight-sparkle) "d50a7f2e";
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  security = lib.mkIf (host == hosts.izzy-moonbow) {
-    polkit.enable = true;
-  };
 
   fileSystems = {
     "/home/skye/Downloads" = {
@@ -65,10 +57,6 @@ in
     '';
   };
 
-  #systemd.services.nginx.serviceConfig = lib.mkIf (host == hosts.twilight-sparkle) {
-  #  ProtectHome = lib.mkForce false;
-  #  ProtectSystem = lib.mkForce false;
-  #};
   services = {
     avahi = {
       enable = true;
@@ -81,24 +69,6 @@ in
     };
     flatpak.enable = true;
     fprintd.enable = true;
-    nginx = lib.mkIf (host == hosts.twilight-sparkle) {
-      enable = true;
-      virtualHosts."battlesnake.skye-c.at" = {
-        root = "/var/www";
-        listen = [
-          {
-            addr = "0.0.0.0";
-            port = 8080;
-          }
-        ];
-      };
-      virtualHosts."localhost" = {
-        locations."/".root = "/home/skye/nginx";
-        serverName = "localhost";
-        default = true;
-        root = "/home/skye/nginx";
-      };
-    };
 
     #hardware.xow.enable = true;
     openssh.enable = true;
@@ -113,14 +83,11 @@ in
     yubikey-agent.enable = true;
   };
 
-  environment.systemPackages =
-    with pkgs;
-    [
-      ntfs3g
-      cifs-utils
-      nfs-utils
-    ]
-    ++ lib.optional (host == hosts.izzy-moonbow) polkit_gnome;
+  environment.systemPackages = with pkgs; [
+    ntfs3g
+    cifs-utils
+    nfs-utils
+  ];
   programs.adb.enable = true;
   programs.light.enable = true;
 
@@ -238,7 +205,6 @@ in
     desktopManager.gnome.enable = true;
     displayManager.gdm.enable = true;
     windowManager.i3.enable = true;
-    videoDrivers = lib.optional (host == hosts.twilight-sparkle) "nvidia";
   };
 
   virtualisation.docker.enable = true;
@@ -262,11 +228,6 @@ in
   users = {
     mutableUsers = false;
     users = {
-      artemis = lib.mkIf (host == hosts.twilight-sparkle) {
-        isSystemUser = true;
-        uid = 1000;
-        group = "users";
-      };
       skye = import ./users/skye.nix inputs;
     };
   };

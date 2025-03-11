@@ -17,7 +17,6 @@
     "scanner"
   ];
   shell = pkgs.fish;
-  uid = if (host == hosts.twilight-sparkle) then 1001 else 1000;
   hashedPassword = import (secrets + /password-hash.nix);
   packages =
     let
