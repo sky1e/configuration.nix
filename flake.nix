@@ -15,8 +15,7 @@
       flake = false;
     };
     system-common = {
-      url = "git+ssh://git@github.com/mildlyfunctionalgays/system-common";
-      flake = false;
+      url = "git+ssh://forgejo@git.mildlyfunctional.gay/mildlyfunctionalgays/system-common";
     };
     lix-module = {
       url = "git+https://git.lix.systems/lix-project/nixos-module";
@@ -30,6 +29,7 @@
       nixpkgs,
       lix-module,
       nixpkgs-master,
+      system-common,
       ...
     }@inputs:
     let
@@ -109,7 +109,8 @@
                 nixpkgs.overlays = [ (self: super: { inherit pkgs-master; }) ];
               }
             )
-            #ignoreme
+            system-common.nixosModules.schema
+            system-common.nixosModules.setSubnets
           ];
           specialArgs = inputs // {
             inherit hosts;

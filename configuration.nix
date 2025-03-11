@@ -121,7 +121,7 @@ in
           mapAttrs'
           nameValuePair
           ;
-        hostsFile = import (system-common + /hosts.nix) { };
+        hostsFile = config.gay.subnets;
         subnets = attrValues hostsFile;
         hostsAttrSet = foldl (a: b: a // b) { } (map (a: a.hosts) subnets);
         hosts = mapAttrs' (name: value: lib.nameValuePair value.ip4 [ name ]) hostsAttrSet;

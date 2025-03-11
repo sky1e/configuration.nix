@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "flake-compat": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1673956053,
+        "narHash": "sha256-4gtG9iQuiKITOjNQQeQIpoIB6b16fm+504Ch3sNKLd8=",
+        "owner": "edolstra",
+        "repo": "flake-compat",
+        "rev": "35bb57c0c8d8b62bbfd284272c928ceb64ddbde9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "edolstra",
+        "repo": "flake-compat",
+        "type": "github"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -10,6 +26,24 @@
         "owner": "numtide",
         "repo": "flake-utils",
         "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "flake-utils_2": {
+      "inputs": {
+        "systems": "systems_2"
+      },
+      "locked": {
+        "lastModified": 1681202837,
+        "narHash": "sha256-H+Rh19JDwRtpVPAWp64F+rlEtxUWBAQW28eAi3SRSzg=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "cfacdce06f30d2b68473a46042957675eebb3401",
         "type": "github"
       },
       "original": {
@@ -70,6 +104,29 @@
         "url": "https://git.lix.systems/lix-project/nixos-module"
       }
     },
+    "nix-vscode-extensions": {
+      "inputs": {
+        "flake-compat": "flake-compat",
+        "flake-utils": "flake-utils_2",
+        "nixpkgs": [
+          "skye-config",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1706145905,
+        "narHash": "sha256-zABEBEl2Nn7Ea0CyqNvc+gOboN8M9RXNOI2Qeamx0WY=",
+        "owner": "nix-community",
+        "repo": "nix-vscode-extensions",
+        "rev": "272df61ec787306e2c5c777ff84fbe5ed2a3eb10",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nix-vscode-extensions",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1741513245,
@@ -88,11 +145,11 @@
     },
     "nixpkgs-master": {
       "locked": {
-        "lastModified": 1741652199,
-        "narHash": "sha256-oUaH00RwK5c6Qna+9lEJoJgqH2fWOLEr9fTL53dhRsM=",
+        "lastModified": 1741715948,
+        "narHash": "sha256-ACYvF8Wsm9QcMZg5wwaHUWNXuMJh3807vOPEY2Xbfzk=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "68ba7dad8a6c170c4e0d30457609d90e3b3c0ec9",
+        "rev": "e735fed7a74a9b7a3c23b4a372c8b8f41cd4817c",
         "type": "github"
       },
       "original": {
@@ -115,10 +172,10 @@
     "secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1676587678,
-        "narHash": "sha256-oexfpfgsstt243lzJ5xGWRuU6kW8apj/hDg6u+ROekc=",
+        "lastModified": 1689036346,
+        "narHash": "sha256-3Q2G6s8+NHkdCBOJKg1Xk+18wP/O0lI7BYi6PyYokqo=",
         "ref": "refs/heads/main",
-        "rev": "abc98db3d03dda6749ea78acae148725d4f02bc7",
+        "rev": "80e464435b0ecfd42c4a67d96ead9f77ce7b9248",
         "revCount": 1,
         "type": "git",
         "url": "file:///home/skye/secrets/"
@@ -129,10 +186,15 @@
       }
     },
     "skye-config": {
-      "flake": false,
+      "inputs": {
+        "nix-vscode-extensions": "nix-vscode-extensions",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
       "locked": {
-        "lastModified": 1737056077,
-        "narHash": "sha256-NsoVpgHRZdbAcDk7rwmOdEqahdYBfK7fcopKh4Fql4U=",
+        "lastModified": 1720334794,
+        "narHash": "sha256-XvZ2UjxcwJYs93MKPmYYXTljUxV9+qVs2a3rPxqhhsM=",
         "path": "/home/skye/.config/nixpkgs",
         "type": "path"
       },
@@ -142,22 +204,36 @@
       }
     },
     "system-common": {
-      "flake": false,
       "locked": {
-        "lastModified": 1626631987,
-        "narHash": "sha256-QaKjNZ1d0ZAxwQ2T0/mpGV7KGr6lTJ2ojnlxEopXdNo=",
+        "lastModified": 1738692994,
+        "narHash": "sha256-Jb+zAKSQrmjmtUwIDwp9ImdqhOny6z4Wiu9Xk+ANEJE=",
         "ref": "refs/heads/main",
-        "rev": "d873acd3e73a52504a7f6d25f7bf790ad272cf83",
-        "revCount": 4,
+        "rev": "882f283dc81386e482188598eb77c8420ff8697d",
+        "revCount": 19,
         "type": "git",
-        "url": "ssh://git@github.com/mildlyfunctionalgays/system-common"
+        "url": "ssh://forgejo@git.mildlyfunctional.gay/mildlyfunctionalgays/system-common"
       },
       "original": {
         "type": "git",
-        "url": "ssh://git@github.com/mildlyfunctionalgays/system-common"
+        "url": "ssh://forgejo@git.mildlyfunctional.gay/mildlyfunctionalgays/system-common"
       }
     },
     "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_2": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
