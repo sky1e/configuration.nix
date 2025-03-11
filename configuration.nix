@@ -34,7 +34,6 @@ in
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   security = lib.mkIf (host == hosts.izzy-moonbow) {
-    pam.services.login.fprintAuth = true;
     polkit.enable = true;
   };
 
@@ -210,10 +209,6 @@ in
   hardware.steam-hardware.enable = true;
   hardware.xpadneo.enable = true;
   hardware.nvidia.modesetting.enable = true;
-
-  # Enable sound.
-  sound.enable = true;
-  hardware.pulseaudio.enable = true;
 
   xdg.portal = {
     enable = true;

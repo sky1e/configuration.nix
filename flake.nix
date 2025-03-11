@@ -39,6 +39,7 @@
             ./hardware-configuration.nix
             ./hardware-configuration-fix.nix
           ];
+          hardware.nvidia.open = false;
         };
       };
     in
