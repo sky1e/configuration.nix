@@ -60,7 +60,7 @@ in
   services = {
     avahi = {
       enable = true;
-      nssmdns = true;
+      nssmdns4 = true;
       publish = {
         enable = true;
         addresses = true;
@@ -69,6 +69,8 @@ in
     };
     flatpak.enable = true;
     fprintd.enable = true;
+    libinput.enable = true;
+    pulseaudio.support32Bit = true;
 
     #hardware.xow.enable = true;
     openssh.enable = true;
@@ -169,10 +171,9 @@ in
   hardware.cpu.intel.updateMicrocode = true;
   hardware.openrazer.enable = true;
   hardware.sane.enable = true;
-  hardware.opengl.extraPackages = [ pkgs.vaapiIntel ];
-  hardware.opengl.driSupport32Bit = true;
-  hardware.opengl.enable = true;
-  hardware.pulseaudio.support32Bit = true;
+  hardware.graphics.extraPackages = [ pkgs.vaapiIntel ];
+  hardware.graphics.enable32Bit = true;
+  hardware.graphics.enable = true;
   hardware.steam-hardware.enable = true;
   hardware.xpadneo.enable = true;
   hardware.nvidia.modesetting.enable = true;
@@ -199,9 +200,7 @@ in
     #'' else "";
     # Enable the X11 windowing system.
     enable = true;
-    layout = "us";
-    # Enable touchpad support.
-    libinput.enable = true;
+    xkb.layout = "us";
     desktopManager.gnome.enable = true;
     displayManager.gdm.enable = true;
     windowManager.i3.enable = true;
